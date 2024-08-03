@@ -1,0 +1,7 @@
+os
+music21
+cv2
+numpy
+keras
+json
+subprocess
