@@ -1,0 +1,164 @@
+{
+    "symbols": [
+        {
+            "type": "eighth",
+            "pitch": "B4",
+            "position": [
+                0.0,
+                0
+            ]
+        },
+        {
+            "type": "whole",
+            "pitch": "A4",
+            "position": [
+                0.5,
+                0
+            ]
+        },
+        {
+            "type": "16th",
+            "pitch": "C5",
+            "position": [
+                4.5,
+                0
+            ]
+        },
+        {
+            "type": "half",
+            "pitch": "D4",
+            "position": [
+                4.75,
+                0
+            ]
+        },
+        {
+            "type": "16th",
+            "pitch": "C4",
+            "position": [
+                6.75,
+                0
+            ]
+        },
+        {
+            "type": "16th",
+            "pitch": "D4",
+            "position": [
+                7.0,
+                0
+            ]
+        },
+        {
+            "type": "whole",
+            "pitch": "E4",
+            "position": [
+                7.25,
+                0
+            ]
+        },
+        {
+            "type": "quarter",
+            "pitch": "F4",
+            "position": [
+                11.25,
+                0
+            ]
+        },
+        {
+            "type": "eighth",
+            "pitch": "F4",
+            "position": [
+                12.25,
+                0
+            ]
+        },
+        {
+            "type": "whole",
+            "pitch": "D4",
+            "position": [
+                12.75,
+                0
+            ]
+        },
+        {
+            "type": "quarter",
+            "pitch": "B4",
+            "position": [
+                16.75,
+                0
+            ]
+        },
+        {
+            "type": "whole",
+            "pitch": "E4",
+            "position": [
+                17.75,
+                0
+            ]
+        },
+        {
+            "type": "16th",
+            "pitch": "E4",
+            "position": [
+                21.75,
+                0
+            ]
+        },
+        {
+            "type": "eighth",
+            "pitch": "A4",
+            "position": [
+                22.0,
+                0
+            ]
+        },
+        {
+            "type": "whole",
+            "pitch": "D4",
+            "position": [
+                22.5,
+                0
+            ]
+        },
+        {
+            "type": "16th",
+            "pitch": "B4",
+            "position": [
+                26.5,
+                0
+            ]
+        },
+        {
+            "type": "whole",
+            "pitch": "C4",
+            "position": [
+                26.75,
+                0
+            ]
+        },
+        {
+            "type": "eighth",
+            "pitch": "E4",
+            "position": [
+                30.75,
+                0
+            ]
+        },
+        {
+            "type": "16th",
+            "pitch": "F4",
+            "position": [
+                31.25,
+                0
+            ]
+        },
+        {
+            "type": "half",
+            "pitch": "D4",
+            "position": [
+                31.5,
+                0
+            ]
+        }
+    ]
+}
