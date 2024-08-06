@@ -13,6 +13,11 @@ import platform
 warnings.filterwarnings("ignore", category=m21ToXml.MusicXMLWarning)
 
 def generate_random_note():
+    '''
+    A function to generate a random note based on a predefined list
+    of pitches and durations.
+    '''
+
     # Define a list of possible pitches and durations
     pitches = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5']
     durations = ['whole', 'half', 'quarter', 'eighth', '16th']
@@ -28,16 +33,19 @@ def generate_random_note():
     return n
 
 def generate_synthetic_musicxml(num_samples=10, output_folder='../raw_data/musicxml_files'):
-        # check for output - Use this for .py
-        # output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'musicxml_files')
-        # if not os.path.exists(output_folder):
-        #     os.makedirs(output_folder)
-
-    #for our notebook since __file__ seems to not work
-    current_dir = os.getcwd()
-    output_folder = os.path.abspath(os.path.join(current_dir, output_folder))
+    '''
+    A function to create a folder of MusicXML files.
+    '''
+    # check for output - Use this for .py
+    output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'musicxml_files')
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
+
+    #for our notebook since __file__ seems to not work
+    # current_dir = os.getcwd()
+    # output_folder = os.path.abspath(os.path.join(current_dir, output_folder))
+    # if not os.path.exists(output_folder):
+    #     os.makedirs(output_folder)
 
     synthetic_data = []
 
@@ -79,6 +87,10 @@ def generate_synthetic_musicxml(num_samples=10, output_folder='../raw_data/music
 
 # get the right path for musescore based on system
 def get_musescore_path():
+    '''
+    A simple function to determine the path for musescore depending on the system platform.
+    This assumes the program was stored in the default directory.
+    '''
     system = platform.system()
     if system == 'Windows':
         return r'C:\Program Files\MuseScore 4\bin\MuseScore4.exe'  # Update this path if necessary
@@ -89,14 +101,18 @@ def get_musescore_path():
     else:
         raise ValueError("Unsupported operating system")
 
-def convert_musicxml_to_png(input_folder='../raw_data/generated_music', output_folder='../raw_data/sheet_images'):
-    current_dir = os.getcwd()
-    input_folder = os.path.abspath(os.path.join(current_dir, input_folder))
-    output_folder = os.path.abspath(os.path.join(current_dir, output_folder))
+def convert_musicxml_to_png(input_folder='../raw_data/musicxml_files', output_folder='../raw_data/sheet_images'):
+    output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'musicxml_files')
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    musescore_path = get_musescore_path()
+    # current_dir = os.getcwd()
+    # input_folder = os.path.abspath(os.path.join(current_dir, input_folder))
+    # output_folder = os.path.abspath(os.path.join(current_dir, output_folder))
+    # if not os.path.exists(output_folder):
+    #     os.makedirs(output_folder)
+
+    musescore_path = get_musescore_path() #change this line manually if musescore is installed in a different directory
 
     for file_name in os.listdir(input_folder):
         if file_name.endswith('.musicxml'):
