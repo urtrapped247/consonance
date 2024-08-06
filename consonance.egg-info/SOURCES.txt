@@ -1,0 +1,10 @@
+README.md
+setup.py
+consonance/__init__.py
+consonance/generate.py
+consonance.egg-info/PKG-INFO
+consonance.egg-info/SOURCES.txt
+consonance.egg-info/dependency_links.txt
+consonance.egg-info/not-zip-safe
+consonance.egg-info/requires.txt
+consonance.egg-info/top_level.txt
