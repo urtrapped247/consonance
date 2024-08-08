@@ -2,3 +2,9 @@ music21
 numpy
 keras
 opencv-python
+# cv2
+# os
+# json
+# subprocess
+# glob
+# random
