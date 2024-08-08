@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: consonance
+Version: 0.0.1
+Summary: Image to MIDI - WIP
+Author: Ninjarroyo07
+Author-email: ninjarroyo07@gmail.com
+Requires-Dist: music21
+Requires-Dist: numpy
+Requires-Dist: keras

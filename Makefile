@@ -1,4 +1,4 @@
 .DEFAULT_GOAL := default
 
 run_generate:
-	python -c 'from taxifare.interface.main import train; train()'
+	python -c 'from consonance.generate import generate_synthetic_musicxml; generate_synthetic_musicxml()'
