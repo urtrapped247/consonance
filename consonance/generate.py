@@ -1,4 +1,6 @@
 # for XML generation
+# this needs to be updated!! This is pre-single-note code
+
 from music21 import stream, note, duration, pitch, metadata, clef
 import os
 import random
