@@ -25,3 +25,5 @@ def preprocess() -> None:
     # Process data
     X_processed = image_preprocess(X)
     
+    return X_processed
+    
