@@ -1,23 +1,27 @@
 ''' '''
-
 import cv2
 
-
-from ml_logic.preprocessor import preprocessor
+from consonance.ml_logic.data import generate_data, load_images_from_folder
+from consonance.ml_logic.preprocessor import image_preprocess, crop_note_from_png_folder
+from consonance.utils.utils import is_directory_empty
 
 def preprocess() -> None:
-    ''' '''
-    
-    # Load images
-    ## 
-    def load_images_from_folder(folder):
-        images = []
-        for filename in glob.glob(f'{folder}/*.png'):
-            img = cv2.imread(filename)
-            if img is not None:
-                images.append(img)
-        return images
+    '''preprocess images'''
 
-    # Load images
-    folder = 'path/to/your/image/folder'
-    X = load_images_from_folder(folder)
+    sheet_folder = '../raw_data/sheet_images'
+    cropped_folder = '../raw_data/cropped_images'
+    
+    # get images from raw_data folder
+    if is_directory_empty(sheet_folder):
+        print(f"The directory {sheet_folder} is empty.")
+        generate_data()
+        
+    #  cropp images
+    crop_note_from_png_folder(sheet_folder, cropped_folder)
+        
+    # load images
+    X = load_images_from_folder(cropped_folder)
+    
+    # Process data
+    X_processed = image_preprocess(X)
+    

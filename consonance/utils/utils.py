@@ -1,10 +1,10 @@
 '''
 General utility functions.
-Accessible globally.
 '''
 
 import time
 import tracemalloc
+import os
 from consonance.params import *
 
 def simple_time_and_memory_tracker(method):
@@ -28,3 +28,9 @@ def simple_time_and_memory_tracker(method):
         return result
 
     return method_with_trackers
+
+def is_directory_empty(directory: str) -> bool:
+    """
+    Check if the specified directory is empty.
+    """
+    return not any(os.scandir(directory))

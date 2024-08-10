@@ -1,12 +1,14 @@
 import cv2
-import numpy as np
 import glob
+import numpy as np
+import os
 import random
 from matplotlib import pyplot as plt
+from PIL import Image
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 
-def preprocess(X) -> np.ndarray:
+def image_preprocess(X) -> np.ndarray:
     class GrayscaleTransformer(BaseEstimator, TransformerMixin):
         '''Converts images to grayscale.'''
         def fit(self, X, y=None):
@@ -83,6 +85,36 @@ def preprocess(X) -> np.ndarray:
     processed_images = image_preprocessor.fit_transform(X)
 
     return processed_images
+
+def crop_note_from_png_folder(input_folder, output_folder):
+    """
+    Crops all PNG images in the specified folder to the specified dimensions.
+
+    Parameters:
+    - input_folder (str): The path to the input folder containing PNG images.
+    - output_folder (str): The path to the folder to save the cropped images.
+    """
+    # Define the crop box (left, upper, right, lower)
+    crop_box = (506, 536, 580, 870)  # Replace these values with your desired dimensions
+
+    # Ensure the output folder exists
+    os.makedirs(output_folder, exist_ok=True)
+
+    # Iterate through all files in the input folder
+    for filename in os.listdir(input_folder):
+        if filename.lower().endswith('.png'):
+            input_path = os.path.join(input_folder, filename)
+            output_path = os.path.join(output_folder, filename)
+
+            # Open the image file
+            with Image.open(input_path) as img:
+                # Crop the image using the provided crop box
+                cropped_img = img.crop(crop_box)
+
+                # Save the cropped image
+                cropped_img.save(output_path)
+
+            # print(f'Cropped image saved to {output_path}')
 
 # # Display original and processed images for comparison
 # for i in range(5):
