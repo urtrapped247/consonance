@@ -5,7 +5,7 @@ Accessible globally.
 
 import time
 import tracemalloc
-from params import *
+from consonance.params import *
 
 def simple_time_and_memory_tracker(method):
 
