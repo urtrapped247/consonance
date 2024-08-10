@@ -2,3 +2,5 @@ music21
 numpy
 keras
 opencv-python
+matplotlib
+cv2
