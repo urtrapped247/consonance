@@ -34,7 +34,7 @@ def generate_random_note():
     n.duration = duration.Duration(selected_duration)
     return n
 
-def generate_synthetic_musicxml(num_samples=10, output_folder='../raw_data/musicxml_files'):
+def generate_synthetic_musicxml(num_samples=10, output_folder='../../raw_data/musicxml_files'):
     '''
     A function to create a folder of MusicXML files.
     '''
@@ -103,7 +103,7 @@ def get_musescore_path():
     else:
         raise ValueError("Unsupported operating system")
 
-def convert_musicxml_to_png(input_folder='../raw_data/musicxml_files', output_folder='../raw_data/sheet_images'):
+def convert_musicxml_to_png(input_folder='../../raw_data/musicxml_files', output_folder='../../raw_data/sheet_images'):
     output_folder = os.path.join(os.path.dirname(__file__), os.pardir, 'musicxml_files')
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
