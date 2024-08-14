@@ -127,3 +127,35 @@ def crop_note_from_png_folder(input_folder, output_folder):
 #     plt.title('Processed')
 
 # plt.show()
+
+def resize_with_aspect_ratio(img, target_size):
+    '''
+    Code from notebook 
+    TODO: include resizing with padding in image_preprocess?
+    '''
+    h, w = img.shape
+
+    # Calculate the aspect ratio
+    aspect_ratio = w / h
+
+    # Determine the target width and height based on the target size
+    if aspect_ratio > 1:  # Wider image
+        new_w = target_size[0]
+        new_h = int(target_size[0] / aspect_ratio)
+    else:  # Taller image
+        new_h = target_size[1]
+        new_w = int(target_size[1] * aspect_ratio)
+
+    # Resize the image
+    resized_img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_AREA)
+
+    # Add padding to make the image square
+    delta_w = target_size[0] - new_w
+    delta_h = target_size[1] - new_h
+    top, bottom = delta_h // 2, delta_h - (delta_h // 2)
+    left, right = delta_w // 2, delta_w - (delta_w // 2)
+
+    color = [255]  # Assuming a white background (255 for grayscale)
+    padded_img = cv2.copyMakeBorder(resized_img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
+
+    return padded_img
