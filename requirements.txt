@@ -4,3 +4,5 @@ keras
 opencv-python
 matplotlib
 cv2
+tensorflow
+tensorflow-addons
