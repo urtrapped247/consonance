@@ -1,6 +1,11 @@
+# ！！please use aphabetical order！！
+colorama
+# keras
+matplotlib
 music21
 numpy
-keras
-opencv-python
-matplotlib
-cv2
+opencv-python # cv2
+pandas
+Pillow
+scikit-learn
+tensorflow
