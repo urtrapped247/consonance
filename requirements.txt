@@ -1,8 +1,12 @@
+# ！！please use aphabetical order！！
+colorama
+cv2
+matplotlib
 music21
 numpy
-keras
 opencv-python
-matplotlib
-cv2
+pandas
+Pillow
+scikit-learn
 tensorflow
 tensorflow-addons

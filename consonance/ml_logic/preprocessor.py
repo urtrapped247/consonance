@@ -1,12 +1,14 @@
 import cv2
-import numpy as np
 import glob
+import numpy as np
+import os
 import random
 from matplotlib import pyplot as plt
+from PIL import Image
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 
-def preprocess(X) -> np.ndarray:
+def image_preprocess(X) -> np.ndarray:
     class GrayscaleTransformer(BaseEstimator, TransformerMixin):
         '''Converts images to grayscale.'''
         def fit(self, X, y=None):
@@ -84,6 +86,36 @@ def preprocess(X) -> np.ndarray:
 
     return processed_images
 
+def crop_note_from_png_folder(input_folder, output_folder):
+    """
+    Crops all PNG images in the specified folder to the specified dimensions.
+
+    Parameters:
+    - input_folder (str): The path to the input folder containing PNG images.
+    - output_folder (str): The path to the folder to save the cropped images.
+    """
+    # Define the crop box (left, upper, right, lower)
+    crop_box = (506, 536, 580, 870)  # Replace these values with your desired dimensions
+
+    # Ensure the output folder exists
+    os.makedirs(output_folder, exist_ok=True)
+
+    # Iterate through all files in the input folder
+    for filename in os.listdir(input_folder):
+        if filename.lower().endswith('.png'):
+            input_path = os.path.join(input_folder, filename)
+            output_path = os.path.join(output_folder, filename)
+
+            # Open the image file
+            with Image.open(input_path) as img:
+                # Crop the image using the provided crop box
+                cropped_img = img.crop(crop_box)
+
+                # Save the cropped image
+                cropped_img.save(output_path)
+
+            # print(f'Cropped image saved to {output_path}')
+
 # # Display original and processed images for comparison
 # for i in range(5):
 #     plt.subplot(2, 5, i+1)
@@ -95,3 +127,35 @@ def preprocess(X) -> np.ndarray:
 #     plt.title('Processed')
 
 # plt.show()
+
+def resize_with_aspect_ratio(img, target_size):
+    '''
+    Code from notebook 
+    TODO: include resizing with padding in image_preprocess?
+    '''
+    h, w = img.shape
+
+    # Calculate the aspect ratio
+    aspect_ratio = w / h
+
+    # Determine the target width and height based on the target size
+    if aspect_ratio > 1:  # Wider image
+        new_w = target_size[0]
+        new_h = int(target_size[0] / aspect_ratio)
+    else:  # Taller image
+        new_h = target_size[1]
+        new_w = int(target_size[1] * aspect_ratio)
+
+    # Resize the image
+    resized_img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_AREA)
+
+    # Add padding to make the image square
+    delta_w = target_size[0] - new_w
+    delta_h = target_size[1] - new_h
+    top, bottom = delta_h // 2, delta_h - (delta_h // 2)
+    left, right = delta_w // 2, delta_w - (delta_w // 2)
+
+    color = [255]  # Assuming a white background (255 for grayscale)
+    padded_img = cv2.copyMakeBorder(resized_img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
+
+    return padded_img
