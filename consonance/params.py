@@ -9,5 +9,6 @@ import os
 CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE"))
 
 ##################  CONSTANTS  #####################
+# IMAGES_PATH=
 
 ################## VALIDATIONS #################
