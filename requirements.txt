@@ -12,4 +12,4 @@ Pillow
 scikit-learn
 tensorflow
 tensorflow-addons
-# uvicorn
+uvicorn
