@@ -1,6 +1,8 @@
 # ！！please use aphabetical order！！
 colorama
-cv2
+# cv2
+fastapi
+httpx
 matplotlib
 music21
 numpy
@@ -10,3 +12,4 @@ Pillow
 scikit-learn
 tensorflow
 tensorflow-addons
+# uvicorn
