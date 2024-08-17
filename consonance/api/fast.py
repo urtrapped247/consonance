@@ -19,11 +19,12 @@ app.add_middleware(
 @app.post("/generate")  # Use POST because we're uploading a file
 async def predict(
         image: UploadFile = File(...),  # Accept image files
+        format: str = "MIDI",  # Default format
         key: str = "C",  # Default key
         tempo: int = 120  # Default tempo
     ):      
     """
-    Generate a MIDI file based on the provided data.
+    Generate a music file based on the provided data.
     """
     
     # Read the image file
@@ -37,7 +38,7 @@ async def predict(
 
     # Make the prediction (this is a placeholder, TODO: replace with actual prediction logic)
     y_pred = app.state.model.predict(X_processed)
-    midi = generate_midi_placeholder_function(y_pred, key, tempo)  # TODO: convert prediction to MIDI format
+    midi = generate_midi_placeholder_function(y_pred, format, key, tempo)  # TODO: convert prediction to MIDI format
 
     print("\n✅ prediction done:", y_pred, "\n")
     
