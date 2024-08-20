@@ -9,7 +9,8 @@ numpy
 opencv-python
 pandas
 Pillow
+python-multipart
 scikit-learn
 tensorflow
-tensorflow-addons
+# tensorflow-addons
 uvicorn
