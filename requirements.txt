@@ -10,3 +10,4 @@ Pillow
 scikit-learn
 tensorflow
 tensorflow-addons
+yolov5
