@@ -14,3 +14,4 @@ scikit-learn
 tensorflow
 # tensorflow-addons
 uvicorn
+yolov5
