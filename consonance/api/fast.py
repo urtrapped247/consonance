@@ -18,10 +18,16 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+media_types = {
+        'midi': 'audio/midi',
+        'wav': 'audio/wav',
+        'mp3': 'audio/mpeg'
+    }
+
 @app.post("/generate")  # Use POST because we're uploading a file
 async def predict(
         image: UploadFile = File(...),  # Accept image files
-        format: str = "MIDI",  # Default format
+        media_type: str = Query("midi", enum=["midi", "wav", "mp3"]),  # Default to MIDI
         key: str = "C",  # Default key
         tempo: int = 120  # Default tempo
     ):      
