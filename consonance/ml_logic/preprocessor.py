@@ -169,6 +169,8 @@ prediction_model = pass
 
 # Preprocess the image
 def preprocess_image(image_path):
+    img_width = 500
+    img_height = 50
     # Read the image
     img = tf.io.read_file(image_path)
     # Decode the image and convert it to grayscale
