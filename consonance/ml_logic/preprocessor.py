@@ -14,8 +14,20 @@ def image_preprocess(X) -> np.ndarray:
         def fit(self, X, y=None):
             return self
         
+        # def transform(self, X, y=None):
+        #     return [cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in X]
+        
         def transform(self, X, y=None):
-            return [cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in X]
+            processed_images = []
+            for img in X:
+                if len(img.shape) == 2:  # Image is already grayscale
+                    processed_images.append(img)
+                elif len(img.shape) == 3 and img.shape[2] == 3:  # Image is BGR
+                    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                    processed_images.append(gray_img)
+                else:
+                    raise ValueError(f"Unexpected number of channels in image: {img.shape}")
+            return np.array(processed_images)
 
     class NoiseReducer(BaseEstimator, TransformerMixin):
         '''Applies Gaussian blur to reduce noise.'''
