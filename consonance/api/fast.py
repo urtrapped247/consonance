@@ -51,6 +51,38 @@ async def predict(
     print("\n✅ prediction done:", y_pred, "\n")
     
     return {'midi': midi}
+    
+@app.post("/test_generate")
+async def predict(
+    images: list[UploadFile] = File(...),
+    media_type: str = Query("midi", enum=["midi", "wav", "mp3"]),
+):
+    """
+    Process the image and return the preprocessed image.
+    """
+    # Read all image data and decode to NumPy arrays
+    image_data_list = []
+    for image in images:
+        image_bytes = await image.read()
+        np_img = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(np_img, cv2.IMREAD_UNCHANGED)
+        if img is None:
+            raise ValueError("Could not decode image.")
+        image_data_list.append(img)
+
+    # Preprocess the array of images
+    processed_images = image_preprocess(image_data_list)
+
+    # Convert each processed image to base64
+    processed_images_base64 = []
+    for processed_img in processed_images:
+        image_pil = Image.fromarray(processed_img.astype("uint8"))
+        buffered = io.BytesIO()
+        image_pil.save(buffered, format="JPEG")
+        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        processed_images_base64.append(img_str)
+
+    return JSONResponse(content={"processed_images": processed_images_base64})
 
 @app.get("/test")
 async def get_dummy_midi(media_type: str = Query(..., description="The media type of the file: 'midi', 'wav', or 'mp3'")):
