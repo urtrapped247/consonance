@@ -24,5 +24,5 @@ def save_model(model: keras.Model = None) -> None:
 
 def load_model(stage="Production") -> keras.Model:
     """    """
-    production_model = tf.keras.models.load_model('prediction_base_model.keras')
+    production_model = tf.keras.models.load_model('../data/prediction_base_model.keras') #
     return production_model
