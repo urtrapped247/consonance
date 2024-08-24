@@ -5,7 +5,7 @@ import pickle
 
 from colorama import Fore, Style
 from tensorflow import keras
-from google.cloud import storage
+# from google.cloud import storage
 
 from consonance.params import *
 # import mlflow

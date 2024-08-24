@@ -1,13 +1,17 @@
 # ！！please use aphabetical order！！
 colorama
-cv2
+# cv2
+fastapi
+httpx
 matplotlib
 music21
 numpy
 opencv-python
 pandas
 Pillow
+python-multipart
 scikit-learn
 tensorflow
-tensorflow-addons
+# tensorflow-addons
+uvicorn
 yolov5
