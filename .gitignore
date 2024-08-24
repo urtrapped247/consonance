@@ -3,3 +3,4 @@ raw_data/
 .DS_Store
 .python-version
 .env
+CRNN.ipynb
