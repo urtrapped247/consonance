@@ -25,9 +25,15 @@ def image_preprocess(X) -> np.ndarray:
                 elif len(img.shape) == 3 and img.shape[2] == 3:  # Image is BGR
                     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                     processed_images.append(gray_img)
+                elif len(img.shape) == 3 and img.shape[2] == 4:  # Image is RGBA
+                    # Convert RGBA to BGR
+                    bgr_img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGR)
+                    gray_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2GRAY)
+                    processed_images.append(gray_img)
                 else:
                     raise ValueError(f"Unexpected number of channels in image: {img.shape}")
             return np.array(processed_images)
+
 
     class NoiseReducer(BaseEstimator, TransformerMixin):
         '''Applies Gaussian blur to reduce noise.'''
