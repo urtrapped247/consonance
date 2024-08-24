@@ -38,7 +38,10 @@ def is_directory_empty(directory: str) -> bool:
     """
     return not any(os.scandir(directory))
 
-def convert_notes_to_midi(note_string, position_to_midi):   # position_to_midi is the dictionary
+def convert_notes_to_midi(note_string, position_to_midi):   # position_to_midi refers to position_to_midi dict below
+    """
+    Takes a note string (ex. "A4G5B6C7G6") and returns a list of the midi pitch value of those notes.
+    """
     # Initialize an empty list to store the MIDI values
     midi_values = []
 
@@ -54,7 +57,6 @@ def convert_notes_to_midi(note_string, position_to_midi):   # position_to_midi i
 
     return midi_values
 
-# Example usage
 position_to_midi = {
     'A4': 69, 'B4': 71, 'C5': 72, 'D5': 74, 'E5': 76, 'F5': 77, 'G5': 79,
     'A5': 81, 'B5': 83, 'C6': 84, 'D6': 86, 'E6': 88, 'F6': 89, 'G6': 91,
@@ -66,6 +68,10 @@ midi_values = convert_notes_to_midi(note_string, position_to_midi)
 print(midi_values)
 
 def quarter_note_conversion(note_list):
+    """
+    Takes a list of note values from convert_notes_to_midi and tuples them with a quarter note duration value.
+    Returns list of tuples (ex. [(69, 480), (79, 480), (95, 480), (96, 480), (91, 480)] )
+    """
     midi_tuple = []
     for note in note_list:
         midi_tuple.append((note, 480))
@@ -74,8 +80,10 @@ def quarter_note_conversion(note_list):
 
 midi_tuple = quarter_note_conversion(midi_values)
 
-
 def create_midi(notes, output_file='output.mid', ticks_per_beat=480):
+    """
+    Takes a list of tuples (pitch, duration) and returns a .mid file
+    """
     mid = MidiFile(ticks_per_beat=ticks_per_beat)
     track = MidiTrack()
     mid.tracks.append(track)
