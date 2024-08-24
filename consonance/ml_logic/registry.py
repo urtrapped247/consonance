@@ -4,8 +4,9 @@ import time
 import pickle
 
 from colorama import Fore, Style
+import tensorflow as tf
 from tensorflow import keras
-from google.cloud import storage
+# from google.cloud import storage
 
 from consonance.params import *
 # import mlflow
@@ -23,4 +24,5 @@ def save_model(model: keras.Model = None) -> None:
 
 def load_model(stage="Production") -> keras.Model:
     """    """
-    return None
+    production_model = tf.keras.models.load_model('prediction_base_model.keras')
+    return production_model
