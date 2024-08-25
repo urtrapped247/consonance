@@ -4,6 +4,7 @@ os.environ["KERAS_BACKEND"] = "tensorflow"
 
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from pathlib import Path
 
@@ -11,28 +12,61 @@ import tensorflow as tf
 import keras
 from keras import ops
 from keras import layers
-
+from keras.preprocessing.sequence import pad_sequences
 
 
 # Path to the data directory
-data_dir = Path("/Users/ninjamac/code/OMR-research/data")
+data_dir = Path("/Users/ninjamac/code/DataSets/images_cropped")
 
-# Get list of all the images
-images = sorted(list(map(str, list(data_dir.glob("*.png")))))
-labels = [img.split(os.path.sep)[-1].split(".png")[0][:-2] for img in images]
-characters = set(char for label in labels for char in label)
+# Load the CSV file
+csv_path = "/Users/ninjamac/code/DataSets/music/labels.csv"
+df = pd.read_csv(csv_path)
+
+
+# Extract filenames and labels
+images = [str(data_dir / filename) for filename in df['filename'].tolist()]
+
+# Convert the label strings into actual lists of integers
+labels = [eval(label) for label in df['labels'].tolist()]
+
+# Extract all unique label values (characters)
+characters = set()
+for label in labels:
+    characters.update(label)  # Add all elements of the label list to the set
+
+# Convert the set to a sorted list
 characters = sorted(list(characters))
 
+# Print out the results to verify
 print("Number of images found: ", len(images))
 print("Number of labels found: ", len(labels))
-print("Number of unique characters: ", len(characters))
-print("Characters present: ", characters)
+print("Number of unique characters (label values): ", len(characters))
+print("Unique label values (characters): ", characters)
+
+
+# Feed in label dictionary
+combined_dict = {
+    'B3_whole': 0, 'C4_whole': 1, 'D4_whole': 2, 'E4_whole': 3, 'F4_whole': 4, 'G4_whole': 5, 'A4_whole': 6, 'B4_whole': 7, 'C5_whole': 8,
+    'D5_whole': 9, 'E5_whole': 10, 'F5_whole': 11, 'G5_whole': 12, 'A5_whole': 13, 'B5_whole': 14, 'C6_whole': 15, 'D6_whole': 16,
+
+    'B3_half': 17, 'C4_half': 18, 'D4_half': 19, 'E4_half':20, 'F4_half': 21, 'G4_half': 22, 'A4_half': 23, 'B4_half': 24, 'C5_half': 25,
+    'D5_half': 26, 'E5_half': 27, 'F5_half': 28, 'G5_half': 29, 'A5_half': 30, 'B5_half': 31, 'C6_half': 32, 'D6_half': 33,
+
+    'B3_quarter': 34, 'C4_quarter': 35, 'D4_quarter': 36, 'E4_quarter': 37, 'F4_quarter': 38, 'G4_quarter': 39, 'A4_quarter': 40, 'B4_quarter': 41, 'C5_quarter': 42,
+    'D5_quarter': 43, 'E5_quarter': 44, 'F5_quarter': 45, 'G5_quarter': 46, 'A5_quarter': 47, 'B5_quarter': 48, 'C6_quarter': 49, 'D6_quarter': 50,
+
+    'B3_eighth': 51, 'C4_eighth': 52, 'D4_eighth': 53, 'E4_eighth': 54, 'F4_eighth': 55, 'G4_eighth': 56, 'A4_eighth': 57, 'B4_eighth': 58, 'C5_eighth': 59,
+    'D5_eighth': 60, 'E5_eighth': 61, 'F5_eighth': 62, 'G5_eighth': 63, 'A5_eighth': 64, 'B5_eighth': 65, 'C6_eighth': 66, 'D6_eighth': 67,
+
+    'B3_16th': 68, 'C4_16th': 69, 'D4_16th': 70, 'E4_16th': 71, 'F4_16th': 72, 'G4_16th': 73, 'A4_16th': 74, 'B4_16th': 75, 'C5_16th': 76,
+    'D5_16th': 77, 'E5_16th': 78, 'F5_16th': 79, 'G5_16th': 80, 'A5_16th': 81, 'B5_16th': 82, 'C6_16th': 83, 'D6_16th': 84
+}
 
 # Batch size for training and validation
 batch_size = 16
 
 # Desired image dimensions
-img_width = 500
+img_width = 250
 img_height = 50
 
 # Factor by which the image is going to be downsampled
@@ -51,32 +85,45 @@ max_length = max([len(label) for label in labels])
 """
 
 
-# Mapping characters to integers
-char_to_num = layers.StringLookup(vocabulary=list(characters), mask_token=None)
+# Convert labels to integer sequences
+def convert_labels_to_integers(labels, combined_dict):
+    return [[combined_dict[label] for label in label_list] for label_list in labels]
 
-# Mapping integers back to original characters
-num_to_char = layers.StringLookup(
-    vocabulary=char_to_num.get_vocabulary(), mask_token=None, invert=True
-)
+labels_int = convert_labels_to_integers(labels, combined_dict)
+
+
+# Reverse mapping from integers back to labels
+int_to_label = {v: k for k, v in combined_dict.items()}
+
+def decode_labels(predictions):
+    return [[int_to_label[int(label)] for label in label_list] for label_list in predictions]
 
 
 def split_data(images, labels, train_size=0.9, shuffle=True):
+    # Convert labels to int
+    labels = convert_labels_to_integers(labels, combined_dict)
     # 1. Get the total size of the dataset
     size = len(images)
     # 2. Make an indices array and shuffle it, if required
-    indices = ops.arange(size)
+    indices = np.arange(size)
     if shuffle:
-        indices = keras.random.shuffle(indices)
+        np.random.shuffle(indices)
     # 3. Get the size of training samples
     train_samples = int(size * train_size)
     # 4. Split data into training and validation sets
-    x_train, y_train = images[indices[:train_samples]], labels[indices[:train_samples]]
-    x_valid, y_valid = images[indices[train_samples:]], labels[indices[train_samples:]]
-    return x_train, x_valid, y_train, y_valid
+    x_train = [images[i] for i in indices[:train_samples]]
+    y_train = [labels[i] for i in indices[:train_samples]]
+    x_valid = [images[i] for i in indices[train_samples:]]
+    y_valid = [labels[i] for i in indices[train_samples:]]
+    # 5. Pad sequences for the max length
+    max_label_length = max(len(label) for label in labels)
+    y_train_padded = pad_sequences(y_train, maxlen=max_label_length, padding='post')
+    y_valid_padded = pad_sequences(y_valid, maxlen=max_label_length, padding='post')
+    return x_train, x_valid, y_train_padded, y_valid_padded
 
 
 # Splitting data into training and validation sets
-x_train, x_valid, y_train, y_valid = split_data(np.array(images), np.array(labels))
+x_train, x_valid, y_train, y_valid = split_data(images, labels)
 
 
 def encode_single_sample(img_path, label):
@@ -93,7 +140,7 @@ def encode_single_sample(img_path, label):
     # dimension to correspond to the width of the image.
     img = ops.transpose(img, axes=[1, 0, 2])
     # 6. Map the characters in label to numbers
-    label = char_to_num(tf.strings.unicode_split(label, input_encoding="UTF-8"))
+    label = tf.convert_to_tensor(label, dtype=tf.int32)
     # 7. Return a dict as our model is expecting two inputs
     return {"image": img, "label": label}
 
@@ -125,11 +172,9 @@ validation_dataset = (
 _, ax = plt.subplots(4, 4, figsize=(10, 5))
 for batch in train_dataset.take(1):
     images = batch["image"]
-    labels = batch["label"]
-    for i in range(16):
+    # labels = batch["label"]
+    for i in range(8):
         img = (images[i] * 255).numpy().astype("uint8")
-        label = tf.strings.reduce_join(num_to_char(labels[i])).numpy().decode("utf-8")
-        label = label.strip('*')
         ax[i // 4, i % 4].imshow(img[:, :, 0].T, cmap="gray")
         ax[i // 4, i % 4].set_title(label)
         ax[i // 4, i % 4].axis("off")
@@ -264,7 +309,7 @@ def build_model():
 
     # Output layer
     x = layers.Dense(
-        len(char_to_num.get_vocabulary()) + 1, activation="softmax", name="dense2"
+        len(int_to_label) + 1, activation="softmax", name="dense2"
     )(x)
 
     # Add CTC layer for calculating CTC loss at each step
@@ -314,7 +359,7 @@ def decode_batch_predictions(pred):
     # Iterate over the results and get back the text
     output_text = []
     for res in results:
-        res = tf.strings.reduce_join(num_to_char(res)).numpy().decode("utf-8")
+        res = tf.strings.reduce_join(int_to_label(res)).numpy().decode("utf-8")
         res = res.strip('*').strip('[UNK]')
         output_text.append(res)
     return output_text
