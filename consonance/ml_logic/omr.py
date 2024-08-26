@@ -12,6 +12,7 @@ import tensorflow as tf
 import keras
 from keras import ops
 from keras import layers
+
 from keras.preprocessing.sequence import pad_sequences
 
 
@@ -21,7 +22,6 @@ data_dir = Path("/Users/ninjamac/code/DataSets/images_cropped")
 # Load the CSV file
 csv_path = "/Users/ninjamac/code/DataSets/music/labels.csv"
 df = pd.read_csv(csv_path)
-
 
 # Extract filenames and labels
 images = [str(data_dir / filename) for filename in df['filename'].tolist()]
