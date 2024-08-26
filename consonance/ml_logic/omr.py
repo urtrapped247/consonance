@@ -66,7 +66,7 @@ combined_dict = {
 batch_size = 16
 
 # Desired image dimensions
-img_width = 250
+img_width = 350
 img_height = 50
 
 # Factor by which the image is going to be downsampled
@@ -359,7 +359,9 @@ def decode_batch_predictions(pred):
     # Iterate over the results and get back the text
     output_text = []
     for res in results:
-        res = tf.strings.reduce_join(int_to_label(res)).numpy().decode("utf-8")
-        res = res.strip('*').strip('[UNK]')
-        output_text.append(res)
+        # Convert the sequence of integers back to labels using int_to_label dictionary
+        label_sequence = [int_to_label.get(int(i), '') for i in res.numpy()]
+        # Join the sequence of labels into a string
+        label_string = ''.join(label_sequence)
+        output_text.append(label_string)
     return output_text
