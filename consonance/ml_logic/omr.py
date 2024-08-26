@@ -242,10 +242,9 @@ def ctc_label_dense_to_sparse(labels, label_lengths):
         ops.cast(label_shape, dtype="int64"),
     )
 
-
 class CTCLayer(layers.Layer):
-    def __init__(self, name=None):
-        super().__init__(name=name)
+    def __init__(self, name=None, **kwargs):
+        super().__init__(name=name, **kwargs)
         self.loss_fn = ctc_batch_cost
 
     def call(self, y_true, y_pred):
@@ -264,6 +263,10 @@ class CTCLayer(layers.Layer):
         # At test time, just return the computed predictions
         return y_pred
 
+def get_config(self):
+        config = super(CTCLayer, self).get_config()
+        config.update({})
+        return config
 
 def build_model():
     # Inputs to the model
