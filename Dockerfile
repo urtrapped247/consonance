@@ -8,6 +8,8 @@ FROM python:3.10
 RUN apt-get update && apt-get install -y \
     libhdf5-dev \
     libgl1-mesa-glx \
+    ffmpeg \
+    fluidsynth \
     && apt-get clean
 
 # Copy the requirements.txt file and install dependencies
