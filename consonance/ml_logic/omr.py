@@ -365,6 +365,47 @@ def decode_batch_predictions(pred):
         # Convert the sequence of integers back to labels using int_to_label dictionary
         label_sequence = [int_to_label.get(int(i), '') for i in res.numpy()]
         # Join the sequence of labels into a string
-        label_string = ''.join(label_sequence)
+        label_string = ' '.join(label_sequence)
         output_text.append(label_string)
     return output_text
+
+
+
+def preprocess_single_image(image_path):
+    """Preprocess a single image for model prediction."""
+    # Read the image
+    img = tf.io.read_file(image_path)
+    # Decode and convert to grayscale
+    img = tf.io.decode_png(img, channels=1)
+    # Convert to float32 in [0, 1] range
+    img = tf.image.convert_image_dtype(img, tf.float32)
+    # Resize to the desired size
+    img = ops.image.resize(img, [img_height, img_width])
+    # Transpose the image because we want the time dimension to correspond to the width of the image
+    img = ops.transpose(img, axes=[1, 0, 2])
+    # Add a batch dimension since the model expects a batch
+    img = tf.expand_dims(img, axis=0)
+    return img
+
+def predict_single_image(model, image_path):
+    """Predict the musical notes from a single image."""
+    # Preprocess the image
+    img = preprocess_single_image(image_path)
+
+    # Make prediction
+    preds = model.predict(img)
+
+    # Decode the predictions
+    pred_texts = decode_batch_predictions(preds)
+
+    # Return the predicted notes
+    return pred_texts[0]  # Since it's a single image, return the first prediction
+
+# Path to the image you want to predict
+image_path = '/path/to/your/image.png'
+
+# Predict the notes from the image
+predicted_notes = predict_single_image(prediction_model, image_path)
+
+# Print the result
+print(f"Predicted Notes: {predicted_notes}")
