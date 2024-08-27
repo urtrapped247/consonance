@@ -4,3 +4,7 @@ raw_data/
 .python-version
 .env
 CRNN.ipynb
+.pyc
+consonance/__pycache__/
+consonance/api/__pycache__/
+consonance/ml_logic/__pycache__/
