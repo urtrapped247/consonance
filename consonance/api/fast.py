@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse
 from consonance.ml_logic.registry import load_model
 from consonance.ml_logic.preprocessor import image_preprocess
 from consonance.ml_logic.decoder import decode_predictions
+from consonance.utils.converter import create_music_files
 
 from fastapi.responses import JSONResponse
 import base64
@@ -89,13 +90,16 @@ async def predict(
     # Make the prediction
     y_pred = app.state.model.predict(processed_images)
     
-    # print("\n✅ Prediction done:", y_pred, "\n")
-    # print("\n🍌 y_pred type: 🍌 ", type(y_pred), "\n")
+    print("\n✅ Prediction done:", y_pred, "\n")
+    print("\n🍌 y_pred type: 🍌 ", type(y_pred), "\n")
     
     y_decoded = decode_predictions(y_pred)
-    # print("\n✅ Prediction y_decoded:", y_decoded, "\n")
+    print("\n✅ Prediction y_decoded:", y_decoded, "\n")
     
-    return JSONResponse(content={"y_decoded": y_decoded})
+    files = create_music_files(y_decoded, media_type)
+    # wav_file = func2(midi_file)
+    
+    return JSONResponse(content=files)
     
 
     # # Convert each processed image to base64
