@@ -8,6 +8,8 @@ Requires-Dist: colorama
 Requires-Dist: fastapi
 Requires-Dist: httpx
 Requires-Dist: matplotlib
+Requires-Dist: midi2audio
+Requires-Dist: mido
 Requires-Dist: music21
 Requires-Dist: numpy
 Requires-Dist: opencv-python

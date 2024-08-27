@@ -10,16 +10,16 @@ def create_music_files(y_pred, media_type):
         coverting according to user seleted media_type (wav or mp3)
     3. if media_type IS MIDI or MP3:
         create wav file
-    
+
     output: {
         'user_format': file,
         'wav': file
     }
     """
-    
+
     return {}
 
-# def create 
+# def create
 
 
 def convert_notes_to_midi(note_string, position_to_midi):   # position_to_midi is the dictionary
@@ -46,8 +46,8 @@ position_to_midi = {
 }
 
 # note_string = 'A4G5B6C7G6' <--- a beautiful tune
-midi_values = convert_notes_to_midi(note_string, position_to_midi)
-print(midi_values)
+# midi_values = convert_notes_to_midi(note_string, position_to_midi)
+# print(midi_values)
 
 def quarter_note_conversion(note_list):
     midi_tuple = []
@@ -56,7 +56,7 @@ def quarter_note_conversion(note_list):
 
     return midi_tuple
 
-midi_tuple = quarter_note_conversion(midi_values)
+# midi_tuple = quarter_note_conversion(midi_values)
 
 def create_midi(notes, output_file='output.mid', ticks_per_beat=480):
     mid = MidiFile(ticks_per_beat=ticks_per_beat)
@@ -115,4 +115,3 @@ def convert_midi_to_audio(input_midi: str, output_format: str):
     # os.remove(temp_wav_file)
 
     return output_file
-

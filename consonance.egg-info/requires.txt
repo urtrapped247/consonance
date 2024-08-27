@@ -2,6 +2,8 @@ colorama
 fastapi
 httpx
 matplotlib
+midi2audio
+mido
 music21
 numpy
 opencv-python
