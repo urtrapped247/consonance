@@ -9,9 +9,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 import tensorflow as tf
 from keras import layers
-from omr import *
+# from consonance.ml_logic.omr import *
 
-def image_preprocess(X) -> np.ndarray:
+def image_preprocess(X, is_pred=True) -> np.ndarray:
     class GrayscaleTransformer(BaseEstimator, TransformerMixin):
         '''Converts images to grayscale.'''
         def fit(self, X, y=None):
@@ -60,7 +60,9 @@ def image_preprocess(X) -> np.ndarray:
             return self
 
         def transform(self, X, y=None):
-            return [self.augment_image(img) for img in X]
+            if not is_pred:
+                return [self.augment_image(img) for img in X]
+            return X
 
         def augment_image(self, image):
             rows, cols = image.shape
@@ -70,15 +72,15 @@ def image_preprocess(X) -> np.ndarray:
             M = cv2.getRotationMatrix2D((cols/2, rows/2), angle, 1)
             rotated = cv2.warpAffine(image, M, (cols, rows))
 
-            # Scaling
-            scale = random.uniform(0.9, 1.1)
-            resized = cv2.resize(rotated, None, fx=scale, fy=scale)
-
+            # # Scaling - change: just resizing later instead
+            # scale = random.uniform(0.9, 1.1)
+            # resized = cv2.resize(rotated, None, fx=scale, fy=scale)
+            
             # Translation
             tx = random.randint(-5, 5)
             ty = random.randint(-5, 5)
             M = np.float32([[1, 0, tx], [0, 1, ty]])
-            translated = cv2.warpAffine(resized, M, (cols, rows))
+            translated = cv2.warpAffine(rotated, M, (cols, rows))
 
             # Shearing
             shear = random.uniform(-0.1, 0.1)
@@ -93,14 +95,72 @@ def image_preprocess(X) -> np.ndarray:
             blurred = cv2.GaussianBlur(noisy, (5, 5), 0)
 
             return blurred
+    
+    class Resizer(BaseEstimator, TransformerMixin):
+        '''Resizes images to 350/50 size'''
+        def fit(self, X, y=None):
+            return self
+
+        def transform(self, X, y=None):
+            # img_width = 350
+            img_width = 500
+            img_height = 50
+            return [cv2.resize(img, (img_width, img_height)) for img in X]
+    
+    class Normalizer(BaseEstimator, TransformerMixin):
+        '''Normalizes images to the range [0, 1].'''
+        def fit(self, X, y=None):
+            return self
+
+        def transform(self, X, y=None):
+            return [img.astype(np.float32) / 255.0 for img in X]
+
+    # class Transposer(BaseEstimator, TransformerMixin):
+    #     '''Transposes images to match the input shape.'''
+    #     def fit(self, X, y=None):
+    #         return self
+
+    #     def transform(self, X, y=None):
+    #         return [np.transpose(img, (1, 0, 2)) for img in X]
+        
+    class Transposer(BaseEstimator, TransformerMixin):
+        '''Transposes images to match the input shape.'''
+        def fit(self, X, y=None):
+            return self
+
+        def transform(self, X, y=None):
+            processed_images = []
+            for img in X:
+                if len(img.shape) == 2:  # Grayscale image (2D)
+                    processed_images.append(np.transpose(img, (1, 0)))
+                elif len(img.shape) == 3:  # Color image (3D)
+                    processed_images.append(np.transpose(img, (1, 0, 2)))
+                else:
+                    raise ValueError(f"Unexpected image shape: {img.shape}")
+            return processed_images
+
+    class BatchAdder(BaseEstimator, TransformerMixin):
+        '''Adds a batch dimension to the images.'''
+        def fit(self, X, y=None):
+            return self
+
+        def transform(self, X, y=None):
+            return [np.expand_dims(img, axis=0) for img in X]
+
 
     # Combine into a pipeline
     image_preprocessor = Pipeline([
         ('grayscale', GrayscaleTransformer()),
-        ('denoise', NoiseReducer()),
-        ('binarize', Binarizer()),
-        ('augment', Augmenter())
+        ('resize', Resizer()),
+        ('normalize', Normalizer()),
+        ('transpose', Transposer()),
+        ('batch', BatchAdder())
     ])
+    
+    # # Resize before processing:
+    # img_width = 500
+    # img_height = 50
+    # X_resized = [cv2.resize(img, (img_width, img_height)) for img in X]
 
     # Preprocess images
     processed_images = image_preprocessor.fit_transform(X)
@@ -182,8 +242,8 @@ def resize_with_aspect_ratio(img, target_size):
     return padded_img
 
 
-#put in model here
-prediction_model = pass
+# #put in model here
+# prediction_model = pass
 
 # Preprocess the image
 def preprocess_image(image_path):
