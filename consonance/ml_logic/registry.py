@@ -23,6 +23,8 @@ def save_model(model: keras.Model = None) -> None:
 
 
 def load_model(stage="Production") -> keras.Model:
-    """    """
-    production_model = tf.keras.models.load_model('../data/prediction_base_model.keras') #
+    """Return trained model."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(current_dir, '../models/prediction_base_model.keras')
+    production_model = tf.keras.models.load_model(model_path)
     return production_model
