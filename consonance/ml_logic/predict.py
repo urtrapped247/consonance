@@ -53,7 +53,7 @@ def decode_batch_predictions(pred):
 
     output_text = []
     for res in results:
-        label_sequence = [int_to_label.get(int(i), '') for i in res.numpy()]
+        label_sequence = [int_to_label.get(int(i), '') for i in res.numpy()]  
         label_string = ' '.join(label_sequence)
         output_text.append(label_string)
     return output_text
