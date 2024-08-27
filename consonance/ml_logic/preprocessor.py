@@ -7,21 +7,42 @@ from matplotlib import pyplot as plt
 from PIL import Image
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
+import tensorflow as tf
+from keras import layers
+# from consonance.ml_logic.omr import *
 
-def image_preprocess(X) -> np.ndarray:
+def image_preprocess(X, is_pred=True) -> np.ndarray:
     class GrayscaleTransformer(BaseEstimator, TransformerMixin):
         '''Converts images to grayscale.'''
         def fit(self, X, y=None):
             return self
         
+        # def transform(self, X, y=None):
+        #     return [cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in X]
+        
         def transform(self, X, y=None):
-            return [cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in X]
+            processed_images = []
+            for img in X:
+                if len(img.shape) == 2:  # Image is already grayscale
+                    processed_images.append(img)
+                elif len(img.shape) == 3 and img.shape[2] == 3:  # Image is BGR
+                    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                    processed_images.append(gray_img)
+                elif len(img.shape) == 3 and img.shape[2] == 4:  # Image is RGBA
+                    # Convert RGBA to BGR
+                    bgr_img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGR)
+                    gray_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2GRAY)
+                    processed_images.append(gray_img)
+                else:
+                    raise ValueError(f"Unexpected number of channels in image: {img.shape}")
+            return np.array(processed_images)
+
 
     class NoiseReducer(BaseEstimator, TransformerMixin):
         '''Applies Gaussian blur to reduce noise.'''
         def fit(self, X, y=None):
             return self
-        
+
         def transform(self, X, y=None):
             return [cv2.GaussianBlur(img, (5, 5), 0) for img in X]
 
@@ -29,7 +50,7 @@ def image_preprocess(X) -> np.ndarray:
         '''Converts images to binary format using Otsu’s thresholding.'''
         def fit(self, X, y=None):
             return self
-        
+
         def transform(self, X, y=None):
             return [cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] for img in X]
 
@@ -37,10 +58,12 @@ def image_preprocess(X) -> np.ndarray:
         '''Applies augmentation techniques including rotation, scaling, translation, shearing, noise addition, and blurring.'''
         def fit(self, X, y=None):
             return self
-        
+
         def transform(self, X, y=None):
-            return [self.augment_image(img) for img in X]
-        
+            if not is_pred:
+                return [self.augment_image(img) for img in X]
+            return X
+
         def augment_image(self, image):
             rows, cols = image.shape
 
@@ -49,15 +72,15 @@ def image_preprocess(X) -> np.ndarray:
             M = cv2.getRotationMatrix2D((cols/2, rows/2), angle, 1)
             rotated = cv2.warpAffine(image, M, (cols, rows))
 
-            # Scaling
-            scale = random.uniform(0.9, 1.1)
-            resized = cv2.resize(rotated, None, fx=scale, fy=scale)
-
+            # # Scaling - change: just resizing later instead
+            # scale = random.uniform(0.9, 1.1)
+            # resized = cv2.resize(rotated, None, fx=scale, fy=scale)
+            
             # Translation
             tx = random.randint(-5, 5)
             ty = random.randint(-5, 5)
             M = np.float32([[1, 0, tx], [0, 1, ty]])
-            translated = cv2.warpAffine(resized, M, (cols, rows))
+            translated = cv2.warpAffine(rotated, M, (cols, rows))
 
             # Shearing
             shear = random.uniform(-0.1, 0.1)
@@ -72,14 +95,72 @@ def image_preprocess(X) -> np.ndarray:
             blurred = cv2.GaussianBlur(noisy, (5, 5), 0)
 
             return blurred
+    
+    class Resizer(BaseEstimator, TransformerMixin):
+        '''Resizes images to 350/50 size'''
+        def fit(self, X, y=None):
+            return self
+
+        def transform(self, X, y=None):
+            # img_width = 350
+            img_width = 500
+            img_height = 50
+            return [cv2.resize(img, (img_width, img_height)) for img in X]
+    
+    class Normalizer(BaseEstimator, TransformerMixin):
+        '''Normalizes images to the range [0, 1].'''
+        def fit(self, X, y=None):
+            return self
+
+        def transform(self, X, y=None):
+            return [img.astype(np.float32) / 255.0 for img in X]
+
+    # class Transposer(BaseEstimator, TransformerMixin):
+    #     '''Transposes images to match the input shape.'''
+    #     def fit(self, X, y=None):
+    #         return self
+
+    #     def transform(self, X, y=None):
+    #         return [np.transpose(img, (1, 0, 2)) for img in X]
+        
+    class Transposer(BaseEstimator, TransformerMixin):
+        '''Transposes images to match the input shape.'''
+        def fit(self, X, y=None):
+            return self
+
+        def transform(self, X, y=None):
+            processed_images = []
+            for img in X:
+                if len(img.shape) == 2:  # Grayscale image (2D)
+                    processed_images.append(np.transpose(img, (1, 0)))
+                elif len(img.shape) == 3:  # Color image (3D)
+                    processed_images.append(np.transpose(img, (1, 0, 2)))
+                else:
+                    raise ValueError(f"Unexpected image shape: {img.shape}")
+            return processed_images
+
+    class BatchAdder(BaseEstimator, TransformerMixin):
+        '''Adds a batch dimension to the images.'''
+        def fit(self, X, y=None):
+            return self
+
+        def transform(self, X, y=None):
+            return [np.expand_dims(img, axis=0) for img in X]
+
 
     # Combine into a pipeline
     image_preprocessor = Pipeline([
         ('grayscale', GrayscaleTransformer()),
-        ('denoise', NoiseReducer()),
-        ('binarize', Binarizer()),
-        ('augment', Augmenter())
+        ('resize', Resizer()),
+        ('normalize', Normalizer()),
+        ('transpose', Transposer()),
+        ('batch', BatchAdder())
     ])
+    
+    # # Resize before processing:
+    # img_width = 500
+    # img_height = 50
+    # X_resized = [cv2.resize(img, (img_width, img_height)) for img in X]
 
     # Preprocess images
     processed_images = image_preprocessor.fit_transform(X)
@@ -121,7 +202,7 @@ def crop_note_from_png_folder(input_folder, output_folder):
 #     plt.subplot(2, 5, i+1)
 #     plt.imshow(cv2.cvtColor(images[i], cv2.COLOR_BGR2RGB))
 #     plt.title('Original')
-    
+
 #     plt.subplot(2, 5, i+6)
 #     plt.imshow(processed_images[i], cmap='gray')
 #     plt.title('Processed')
@@ -130,7 +211,7 @@ def crop_note_from_png_folder(input_folder, output_folder):
 
 def resize_with_aspect_ratio(img, target_size):
     '''
-    Code from notebook 
+    Code from notebook
     TODO: include resizing with padding in image_preprocess?
     '''
     h, w = img.shape
@@ -159,3 +240,39 @@ def resize_with_aspect_ratio(img, target_size):
     padded_img = cv2.copyMakeBorder(resized_img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
 
     return padded_img
+
+
+# #put in model here
+# prediction_model = pass
+
+# Preprocess the image
+def preprocess_image(image_path):
+    img_width = 500
+    img_height = 50
+    # Read the image
+    img = tf.io.read_file(image_path)
+    # Decode the image and convert it to grayscale
+    img = tf.io.decode_png(img, channels=1)
+    # Resize the image to the expected size
+    img = tf.image.resize(img, [img_height, img_width])
+    # Normalize the image to the range [0, 1]
+    img = tf.image.convert_image_dtype(img, tf.float32)
+    # Transpose the image to match the input shape
+    img = tf.transpose(img, perm=[1, 0, 2])
+    # Add batch dimension
+    img = tf.expand_dims(img, axis=0)
+    return img
+
+# Predict text from image
+def predict_text_and_display(prediction_model, image_path):
+    # Preprocess the image
+    processed_img = preprocess_image(image_path)
+    # Make predictions
+    predictions = prediction_model.predict(processed_img)
+    # Decode the predictions
+    decoded_text = decode_batch_predictions(predictions)
+
+    return decoded_text
+
+
+image_path = "/Users/ninjamac/code/images_cropped/music_99.png"  # Replace with the actual path to your image
