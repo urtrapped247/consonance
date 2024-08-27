@@ -1,3 +1,22 @@
+colorama
+fastapi
+httpx
+matplotlib
 music21
 numpy
-keras
+opencv-python
+pandas
+Pillow
+python-multipart
+scikit-learn
+uvicorn
+yolov5
+
+[:sys_platform != "darwin"]
+tensorflow
+
+[:sys_platform == "darwin" and "ARM" in platform_version]
+tensorflow-macos
+
+[:sys_platform == "darwin" and "ARM" not in platform_version]
+tensorflow

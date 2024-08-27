@@ -1,9 +1,22 @@
 Metadata-Version: 2.1
 Name: consonance
-Version: 0.0.1
-Summary: Image to MIDI - WIP
-Author: Ninjarroyo07
+Version: 0.0.2
+Summary: Image to Audio
+Author: urtrapped247, TravisPM, emzys
 Author-email: ninjarroyo07@gmail.com
+Requires-Dist: colorama
+Requires-Dist: fastapi
+Requires-Dist: httpx
+Requires-Dist: matplotlib
 Requires-Dist: music21
 Requires-Dist: numpy
-Requires-Dist: keras
+Requires-Dist: opencv-python
+Requires-Dist: pandas
+Requires-Dist: Pillow
+Requires-Dist: python-multipart
+Requires-Dist: scikit-learn
+Requires-Dist: uvicorn
+Requires-Dist: yolov5
+Requires-Dist: tensorflow-macos; sys_platform == "darwin" and "ARM" in platform_version
+Requires-Dist: tensorflow; sys_platform == "darwin" and "ARM" not in platform_version
+Requires-Dist: tensorflow; sys_platform != "darwin"
