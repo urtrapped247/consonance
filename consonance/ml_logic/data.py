@@ -30,7 +30,7 @@ def load_images_with_filenames(folder):
             images.append(img)
             filenames.append(filename)
     return images, filenames
-        
+
 def save_images_to_folder(images, folder, original_filenames):
     for img, original_filename in zip(images, original_filenames):
         base_filename = os.path.basename(original_filename)
