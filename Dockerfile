@@ -30,9 +30,10 @@ RUN pip install .
 # RUN make reset_local_files
 
 # Expose the port the app runs on
-EXPOSE 8000
+# EXPOSE 8080 --> avoid exposing for now for gcp
 
 # Command to run the FastAPI app
-CMD ["uvicorn", "consonance.api.fast:app", "--host", "0.0.0.0", "--port", $PORT]
+CMD uvicorn consonance.api.fast:app --host 0.0.0.0 --port $PORT
+# CMD ["uvicorn", "consonance.api.fast:app", "--host", "0.0.0.0", "--port", $PORT] --> old command
 # CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 # CMD uvicorn taxifare.api.fast:app --host 0.0.0.0 --port $PORT
