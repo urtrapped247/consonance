@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from fastapi import FastAPI, File, HTTPException, UploadFile, Query
+from fastapi import FastAPI, File, HTTPException, UploadFile, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from consonance.ml_logic.registry import load_model
@@ -64,6 +64,7 @@ async def predict(
 
 @app.post("/test_generate")
 async def predict(
+    request: Request,
     images: list[UploadFile] = File(...),
     media_type: str = Query("midi", enum=["midi", "wav", "mp3"]),
 ):
@@ -91,25 +92,67 @@ async def predict(
     y_pred = app.state.model.predict(processed_images)
 
     print("\n✅ Prediction done:", y_pred, "\n")
-    print("\n🍌 y_pred type: 🍌 ", type(y_pred), "\n")
+    # print("\n🍌 y_pred type: 🍌 ", type(y_pred), "\n")
 
     y_decoded = decode_predictions(y_pred)
-    print("\n✅ Prediction y_decoded:", y_decoded, "\n")
+    print("\n✅ Prediction y_decoded:\n")
 
-    files = create_music_files(y_decoded, media_type)
-    # wav_file = func2(midi_file)
+    output_files = [create_music_files(note_string, media_type) for note_string in y_decoded]
+    print("\n✅ Created output_files: 🍌", output_files, "\n")
+    
+    # # 1st try
+    # files = []
+    # for file in output_files:
+    #     file_dict = {}
+    #     if media_type in file:
+    #         file_path = file[media_type]
+    #         print("\n🍓 file_path: 🍓", file_path, "\n")
+    #         file_dict[media_type] = FileResponse(file_path, media_type='application/octet-stream', filename=file[media_type])
+    #     if media_type is not "wav":
+    #         file_dict["wav"] = FileResponse(file_path, media_type='application/octet-stream', filename=file["wav"])
+    #     files.append(file_dict)
+    #     print("\n🍓 file_dict: 🍓", file_dict, "\n")
 
-    return JSONResponse(content=files)
+    # # 2nd try
+    # file_responses = []
+    # for file_dict in output_files:
+    #     response_entry = {}
+    #     if media_type in file_dict:
+    #         file_path = file_dict[media_type]
+    #         print("\n🍓 file_path: 🍓", file_path, "\n")
+    #         response_entry[media_type] = FileResponse(file_path, media_type='application/octet-stream', filename=file_path)
+
+    #     if media_type != "wav" and "wav" in file_dict:
+    #         wav_path = file_dict["wav"]
+    #         print("\n🍓 wav_path: 🍓", wav_path, "\n")
+    #         response_entry["wav"] = FileResponse(wav_path, media_type='application/octet-stream', filename=wav_path)
+    #     file_responses.append(response_entry)
+    #     print("\n🍓 response_entry: 🍓", response_entry, "\n")
+    
+    # return file_responses
 
 
-    # # Convert each processed image to base64
-    # processed_images_base64 = []
-    # for processed_img in processed_images:
-    #     image_pil = Image.fromarray(processed_img.astype("uint8"))
-    #     buffered = io.BytesIO()
-    #     image_pil.save(buffered, format="JPEG")
-    #     img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-    #     processed_images_base64.append(img_str)
+    # Create URLs to serve files
+    file_urls = []
+    for file_dict in output_files:
+        file_info = {}
+        for file_type, file_path in file_dict.items():
+            if os.path.exists(file_path):
+                # Generate the URL to download the file
+                file_info[file_type] = str(request.url_for('download_file', file_path=file_path))
+            else:
+                raise HTTPException(status_code=404, detail=f"File not found: {file_path}")
+        file_urls.append(file_info)
+    print("\n🍓 file_urls: 🍓", file_urls, "\n")
+    return file_urls
+
+
+@app.get("/download/{file_path:path}")
+async def download_file(file_path: str):
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(file_path, media_type='application/octet-stream', filename=os.path.basename(file_path))
+
 
 @app.get("/test")
 async def get_dummy_midi(media_type: str = Query(..., description="The media type of the file: 'midi', 'wav', or 'mp3'")):
