@@ -4,14 +4,21 @@ colorama
 fastapi
 httpx
 matplotlib
+midi2audio
+mido
 music21
 numpy
 opencv-python
 pandas
+pydub
 Pillow
 python-multipart
 scikit-learn
-tensorflow
-# tensorflow-addons
 uvicorn
 yolov5
+# Trick to install the version of Tensorflow depending on your processor: darwin == Mac, ARM == M1
+tensorflow-macos; sys_platform == 'darwin' and 'ARM' in platform_version # Mac M-chips
+tensorflow; sys_platform == 'darwin' and 'ARM' not in platform_version # Mac Intel chips
+tensorflow; sys_platform != 'darwin' # Windows & Ubuntu Intel chips
+
+# tensorflow-addons

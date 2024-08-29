@@ -6,9 +6,9 @@ with open("requirements.txt") as f:
 requirements = [x.strip() for x in content if "git+" not in x]
 
 setup(name='consonance',
-      version="0.0.1",
-      description="Image to MIDI - WIP",
-      author="Ninjarroyo07",
+      version="0.0.2",
+      description="Image to Audio",
+      author="urtrapped247, TravisPM, emzys",
       author_email="ninjarroyo07@gmail.com",
       install_requires=requirements,
       packages=find_packages(),

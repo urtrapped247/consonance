@@ -1,11 +1,32 @@
+.env
 data/
 raw_data/
-.DS_Store
-.python-version
-.env
 CRNN.ipynb
 .pyc
 consonance/__pycache__/
 consonance/api/__pycache__/
 consonance/ml_logic/__pycache__/
 consonance/utils/__pycache__/
+
+# OS generated files #
+######################
+.DS_Store
+__MACOSX
+
+# Jupiter Notebook #
+.pytest_cache
+__pycache__
+*checkpoint.ipynb
+*.ipynb_checkpoints
+
+# inteliJ #
+.idea
+*.gz
+*PKG-INFO
+*.egg-info
+*.zip
+mlruns
+*.sqlite
+
+# IDE #
+*.vscode
