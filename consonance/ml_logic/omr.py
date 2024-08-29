@@ -59,7 +59,7 @@ combined_dict = {
     'D5_eighth': 60, 'E5_eighth': 61, 'F5_eighth': 62, 'G5_eighth': 63, 'A5_eighth': 64, 'B5_eighth': 65, 'C6_eighth': 66, 'D6_eighth': 67,
 
     'B3_16th': 68, 'C4_16th': 69, 'D4_16th': 70, 'E4_16th': 71, 'F4_16th': 72, 'G4_16th': 73, 'A4_16th': 74, 'B4_16th': 75, 'C5_16th': 76,
-    'D5_16th': 77, 'E5_16th': 78, 'F5_16th': 79, 'G5_16th': 80, 'A5_16th': 81, 'B5_16th': 82, 'C6_16th': 83, 'D6_16th': 84
+    'D5_16th': 77, 'E5_16th': 78, 'F5_16th': 79, 'G5_16th': 80, 'A5_16th': 81, 'B5_16th': 82, 'C6_16th': 83, 'D6_16th': 84, '*': 0
 }
 
 # Batch size for training and validation
@@ -405,7 +405,7 @@ def predict_single_image(model, image_path):
 image_path = '/path/to/your/image.png'
 
 # Predict the notes from the image
-predicted_notes = predict_single_image(prediction_model, image_path)
+#predicted_notes = predict_single_image(prediction_model, image_path)
 
 # Print the result
-print(f"Predicted Notes: {predicted_notes}")
+#print(f"Predicted Notes: {predicted_notes}")
