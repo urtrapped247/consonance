@@ -103,7 +103,7 @@ def image_preprocess(X, is_pred=True) -> np.ndarray:
 
         def transform(self, X, y=None):
             # img_width = 350
-            img_width = 500
+            img_width = 350
             img_height = 50
             return [cv2.resize(img, (img_width, img_height)) for img in X]
     
