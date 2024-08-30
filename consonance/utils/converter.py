@@ -1,4 +1,4 @@
-from mido import MidiFile, MidiTrack, Message, bpm2tempo
+from mido import MidiFile, MidiTrack, Message, bpm2tempo, MetaMessage
 from midi2audio import FluidSynth
 from pydub import AudioSegment
 import os
@@ -137,7 +137,9 @@ def create_music_files(note_string, media_type, tempo_bpm=120, key_signature="C 
 
     # Set the tempo
     tempo = bpm2tempo(tempo_bpm)  # Converts BPM to microseconds per beat
-    track.append(Message('set_tempo', tempo=tempo))
+    # track.append(Message('set_tempo', tempo=tempo))
+    track.append(MetaMessage('set_tempo', tempo=tempo))
+
 
     for note_pitch, duration in y_pred:
         # Adjust for key signature
