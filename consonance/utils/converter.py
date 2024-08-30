@@ -1,6 +1,7 @@
 from mido import MidiFile, MidiTrack, Message, bpm2tempo
 from midi2audio import FluidSynth
 from pydub import AudioSegment
+import os
 from consonance.params import *
 
 def note_mapping(note):
@@ -49,6 +50,62 @@ def adjust_for_key(midi_note, key):
     }
     return key_adjustments.get(key, {}).get(midi_note, midi_note)
 
+# def create_music_files(note_string, media_type):
+#     """
+#     Creates a MIDI file and optionally converts it to a specified media type (wav or mp3).
+#     If the media type is MIDI or MP3, it also creates a WAV file.
+
+#     Args:
+#     note_string (str): Space-separated string of notes and durations, e.g., 'B3_whole D4_quarter'.
+#     media_type (str): The desired output format, 'midi', 'wav', or 'mp3'.
+
+#     Returns:
+#     dict: A dictionary containing the file paths of the created files.
+#     """
+
+#     # Split the note string into individual notes
+#     notes = note_string.split()
+
+#     # Map each note to its corresponding (MIDI pitch, duration) tuple
+#     y_pred = [note_mapping(note) for note in notes]
+
+#     # 1. Create MIDI file
+#     midi = MidiFile()
+#     track = MidiTrack()
+#     midi.tracks.append(track)
+
+#     for note_pitch, duration in y_pred:
+#         track.append(Message('note_on', note=note_pitch, velocity=64, time=0))
+#         track.append(Message('note_off', note=note_pitch, velocity=64, time=int(duration)))
+
+#     midi_file_path = 'output.mid'
+#     midi.save(midi_file_path)
+
+#     output_files = {'midi': midi_file_path}
+
+#     # 2. Convert to WAV or MP3 if needed
+#     if media_type != 'midi':
+#         audio_segment = AudioSegment.from_file(midi_file_path, format="mid")
+
+#         if media_type == 'mp3':
+#             mp3_file_path = 'output.mp3'
+#             audio_segment.export(mp3_file_path, format='mp3')
+#             output_files['user_format'] = mp3_file_path
+#         elif media_type == 'wav':
+#             wav_file_path = 'output.wav'
+#             audio_segment.export(wav_file_path, format='wav')
+#             output_files['user_format'] = wav_file_path
+
+#     # 3. Create a WAV file if media_type is 'midi' or 'mp3'
+#     if media_type == 'midi' or media_type == 'mp3':
+#         wav_file_path = 'output.wav'
+#         audio_segment = AudioSegment.from_file(midi_file_path, format="mid")
+#         audio_segment.export(wav_file_path, format='wav')
+#         output_files['wav'] = wav_file_path
+
+#     print("\n🥝 output_files: 🥝 ", output_files, "\n")
+#     return output_files
+
 def create_music_files(note_string, media_type, tempo_bpm=120, key_signature="C Major"):
     """
     Creates a MIDI file and optionally converts it to a specified media type (wav or mp3).
@@ -64,12 +121,14 @@ def create_music_files(note_string, media_type, tempo_bpm=120, key_signature="C 
     Returns:
     dict: A dictionary containing the file paths of the created files.
     """
+    soundfont_path = os.path.join(os.getcwd(), "consonance/utils/FluidR3_GM.sf2")
 
     # Split the note string into individual notes
     notes = note_string.split()
 
     # Map each note to its corresponding (MIDI pitch, duration) tuple
     y_pred = [note_mapping(note) for note in notes]
+    print("\n🥝 note_mapping y_pred: 🥝 ", y_pred, "\n")
 
     # 1. Create MIDI file
     midi = MidiFile()
@@ -93,24 +152,23 @@ def create_music_files(note_string, media_type, tempo_bpm=120, key_signature="C 
 
     output_files = {'midi': midi_file_path}
 
-    # 2. Convert to WAV or MP3 if needed
-    if media_type != 'midi':
-        audio_segment = AudioSegment.from_file(midi_file_path, format="mid")
+    # 2. Convert MIDI to WAV or MP3 using FluidSynth
+    if media_type in ['wav', 'mp3']:
+        wav_file_path = 'output.wav'
+        fs = FluidSynth(soundfont_path)
+        fs.midi_to_audio(midi_file_path, wav_file_path)
+        output_files['wav'] = wav_file_path
 
         if media_type == 'mp3':
             mp3_file_path = 'output.mp3'
-            audio_segment.export(mp3_file_path, format='mp3')
+            os.system(f"ffmpeg -i {wav_file_path} -codec:a libmp3lame -qscale:a 2 {mp3_file_path}")
             output_files['user_format'] = mp3_file_path
-        elif media_type == 'wav':
-            wav_file_path = 'output.wav'
-            audio_segment.export(wav_file_path, format='wav')
-            output_files['user_format'] = wav_file_path
 
-    # 3. Create a WAV file if media_type is 'midi' or 'mp3'
-    if media_type == 'midi' or media_type == 'mp3':
+    # 3. If media_type is 'midi', create WAV as well
+    elif media_type == 'midi':
         wav_file_path = 'output.wav'
-        audio_segment = AudioSegment.from_file(midi_file_path, format="mid")
-        audio_segment.export(wav_file_path, format='wav')
+        fs = FluidSynth(soundfont_path)
+        fs.midi_to_audio(midi_file_path, wav_file_path)
         output_files['wav'] = wav_file_path
 
     return output_files
