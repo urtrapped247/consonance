@@ -1,4 +1,4 @@
-from mido import MidiFile, MidiTrack, Message
+from mido import MidiFile, MidiTrack, Message, bpm2tempo
 from midi2audio import FluidSynth
 from pydub import AudioSegment
 import os
@@ -32,6 +32,23 @@ def note_mapping(note):
     midi_duration = duration_map[duration]
 
     return midi_pitch, midi_duration
+
+def adjust_for_key(midi_note, key):
+    key_adjustments = {
+        "G Major": {77: 78},  # F5 -> F#5
+        "D Major": {77: 78, 79: 80},  # F5 -> F#5, C6 -> C#6
+        "A Major": {77: 78, 79: 80, 84: 85},  # F5 -> F#5, C6 -> C#6, G6 -> G#6
+        "F Major": {71: 70},  # B4 -> Bb4
+        "Bb Major": {71: 70, 76: 75},  # B4 -> Bb4, E5 -> Eb5
+        "Eb Major": {71: 70, 76: 75, 81: 80},  # B4 -> Bb4, E5 -> Eb5, A5 -> Ab5
+        "A Minor": {},  # A Minor has no accidental adjustments
+        "E Minor": {77: 78},  # F5 -> F#5
+        "B Minor": {77: 78, 79: 80},  # F5 -> F#5, C6 -> C#6
+        "D Minor": {71: 70},  # B4 -> Bb4
+        "G Minor": {71: 70, 76: 75},  # B4 -> Bb4, E5 -> Eb5
+        "C Major": {}  # C Major has no accidental adjustments
+    }
+    return key_adjustments.get(key, {}).get(midi_note, midi_note)
 
 # def create_music_files(note_string, media_type):
 #     """
@@ -89,14 +106,17 @@ def note_mapping(note):
 #     print("\n🥝 output_files: 🥝 ", output_files, "\n")
 #     return output_files
 
-def create_music_files(note_string, media_type):
+def create_music_files(note_string, media_type, tempo_bpm=120, key_signature="C Major"):
     """
     Creates a MIDI file and optionally converts it to a specified media type (wav or mp3).
     If the media type is MIDI or MP3, it also creates a WAV file.
+    Supports tempo and key signature adjustments.
 
     Args:
     note_string (str): Space-separated string of notes and durations, e.g., 'B3_whole D4_quarter'.
     media_type (str): The desired output format, 'midi', 'wav', or 'mp3'.
+    tempo_bpm (int): Tempo in beats per minute. Default is 120 BPM.
+    key_signature (str): The key signature for the music, e.g., 'C Major', 'G Major'.
 
     Returns:
     dict: A dictionary containing the file paths of the created files.
@@ -115,9 +135,17 @@ def create_music_files(note_string, media_type):
     track = MidiTrack()
     midi.tracks.append(track)
 
+    # Set the tempo
+    tempo = bpm2tempo(tempo_bpm)  # Converts BPM to microseconds per beat
+    track.append(Message('set_tempo', tempo=tempo))
+
     for note_pitch, duration in y_pred:
-        track.append(Message('note_on', note=note_pitch, velocity=64, time=0))
-        track.append(Message('note_off', note=note_pitch, velocity=64, time=int(duration)))
+        # Adjust for key signature
+        adjusted_pitch = adjust_for_key(note_pitch, key_signature)
+        # Calculate the adjusted time based on the tempo
+        adjusted_duration = int(duration * (120 / tempo_bpm))
+        track.append(Message('note_on', note=adjusted_pitch, velocity=64, time=0))
+        track.append(Message('note_off', note=adjusted_pitch, velocity=64, time=adjusted_duration))
 
     midi_file_path = 'output.mid'
     midi.save(midi_file_path)
